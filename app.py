@@ -1,5 +1,5 @@
 import streamlit as st
-import conection 
+
 
 st.title("Scott Manager DB Oracle App")
 
@@ -35,9 +35,9 @@ if botonEmpleados:
     employeeDepartmentNumber = st.text_input("Employee Department Number")
     saveAddEmployeeButton = st.button('Save Employee')
     
-    params_to_send = [employeeNumber,employeeName,employeeJob,employeeManager,employeeHireDate,employeeSalary,
-                          employeeCommision,employeeDepartmentNumber
-                          ]
+    #params_to_send = [employeeNumber,employeeName,employeeJob,employeeManager,employeeHireDate,employeeSalary,
+     #                     employeeCommision,employeeDepartmentNumber
+      #                    ]
     
     
         
