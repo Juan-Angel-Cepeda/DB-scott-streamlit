@@ -30,7 +30,11 @@ with st.container():
         consultarBaseBoton = st.button('Consultar')
         
     if selectBoxEmployees == 'Add employee' and ejecutarButton:
-        pass
+        message = cnn.addEmployee(employeeNumber,employeeName,employeeJob,employeeManager,employeeHireDate,
+                                  employeeSalary,employeeCommision,employeeDepartmentNumber)
+        
+        st.metric(label="status",value=message,delta="added")
+        
     elif selectBoxEmployees == 'Modify Employee' and ejecutarButton:
         pass
     elif selectBoxEmployees == 'Delete Employee' and ejecutarButton:

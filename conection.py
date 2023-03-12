@@ -34,6 +34,7 @@ def departmentConection(deptno=0):
                 'message': 'Department not found.',
                 'error': re.split(r'\n', '{}'.format(err))
             }
+            return data
         else:
             data = {
                 'message': 'Success',
@@ -115,7 +116,7 @@ def deleteDepartment(deptno):
     cursor = connection.cursor()
     
     try:
-        cursor.callproc('DELETEDEPTO', (deptno))
+        cursor.callproc('DELETEDEPTO',[deptno])
     
     except Exception as err:
         data = {
@@ -127,7 +128,7 @@ def deleteDepartment(deptno):
             'message': 'Success'
         }
     finally:
-        connection.commit
+        connection.commit()
         cursor.close()
         mensaje = "Departamento Eliminado"
         return mensaje
@@ -183,24 +184,27 @@ def employeesConection(empno=0):
         return empleados
 
 
-def post(self, request):
+def addEmployee(employeeNumber,employeeName,employeeJob,
+                employeeManager,employeeHireDate,employeeSalary,
+                employeeCommision, employeeDepartmentNumber):
+    
     connection = startConection()
     cursor = connection.cursor()
-    jd = json.loads(request.body)
+    data = {}
     try:
-        cursor.callproc('ADD_EMP', (jd['empno'], jd['ename'], jd['job'], jd['mgr'], jd['hiredate'], jd['sal'], jd['comm'], jd['deptno']))
+        cursor.callproc('addEmployee',[employeeNumber,employeeName,employeeJob,employeeManager,
+                                   employeeHireDate,employeeSalary,employeeCommision,
+                                   employeeDepartmentNumber])
     except Exception as err:
         data = {
             'message': 'No employee inserted.',
             'error': re.split(r'\n', '{}'.format(err))
         }
-    else:
-        data = {
-            'message': 'Success'
-        }
+        return data
     finally:
         cursor.close()
-    return json.dump(data)
+        connection.commit()
+        return "Empleado Insertado en la base"
 
 def put(self, request, empno=0):
     connection = startConection()
@@ -258,4 +262,3 @@ def get(self, request, deptno=0):
         }
     return json.dump(data)
 
-startConection()
