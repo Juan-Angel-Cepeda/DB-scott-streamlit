@@ -1,19 +1,29 @@
-import oracledb as oracle
+import oracledb as Oracle
 import json
 import re
 
-connection = oracle.connect(
- user = "C##SCOTTS",
- password = "admin",
- dsn = "localhost/xepdb1"
-)
+def startConection():
+    try:    
+        conn = Oracle.connect(user="C##SCOTTS",
+            password = "admin",
+            dsn = "localhost/xe")
+        return conn
+
+    except Exception as err:
+        print("Error",err)
+        
+        
     
-def get(deptno=0):
+def departmentConection(deptno=0):
+    
+    connection = startConection()
     cursor = connection.cursor()
+    
     if deptno > 0:
         cursor.execute("SELECT * FROM dept WHERE deptno = {}".format(deptno))
         departments = cursor.fetchall()
         json_data = []
+        data = {}
         try:
             json_data.append({"deptno" : departments[0][0], "dname" : departments[0][1], "loc" : departments[0][2]})
         except Exception as err:
@@ -26,14 +36,16 @@ def get(deptno=0):
                 'message': 'Success',
                 'departments': json_data
             }
-        return json.dump(data)
+        return json_data
+    
     else:
         cursor.execute("SELECT * FROM dept")
         departments = cursor.fetchall()
         json_data = []
+        data = {}
         try:
             for dept in departments:
-                json_data.append({"deptno" : dept[0], "dname" : dept[1], "loc" : dept[2]})
+                json_data.append({"Department Number" : dept[0], "Department Name" : dept[1], "Location" : dept[2]})
         except Exception as err:
             data = {
                 'message': 'Departments not found.',
@@ -44,13 +56,18 @@ def get(deptno=0):
                 'message': 'Success',
                 'departments': json_data
             }
-        return json.dump(data)
+        cursor.close()
+        return json_data
+        
 
-def post(self, request):
+def addDe(dept_number,dept_name,dept_location):
+    connection = startConection()
     cursor = connection.cursor()
-    jd = json.loads(request.body)
+    data = {}
+
     try:
-        cursor.callproc('ADD_DEPTO', (jd['deptno'], jd['dname'], jd['loc']))
+        cursor.callproc('ADDDEPTO', [dept_number,dept_name,dept_location])
+    
     except Exception as err:
         data = {
             'message': 'No department inserted.',
@@ -62,9 +79,11 @@ def post(self, request):
         }
     finally:
         cursor.close()
-    return json.dump(data)
+        return 0
+    
 
 def put(self, request, deptno=0):
+    connection = startConection()
     cursor = connection.cursor()
     jd = json.loads(request.body)
     try:
@@ -83,6 +102,7 @@ def put(self, request, deptno=0):
     return json.dump(data)
 
 def delete(self, request, deptno=0):
+    connection = startConection()
     cursor = connection.cursor()
     department = [deptno]
     try:
@@ -102,6 +122,7 @@ def delete(self, request, deptno=0):
 
 
 def get(self, request, empno=0):
+    connection = startConection()
     cursor = connection.cursor()
     if empno > 0:
         cursor.execute("SELECT * FROM emp WHERE empno = {}".format(empno))
@@ -140,6 +161,7 @@ def get(self, request, empno=0):
         return json.dump(data)
 
 def post(self, request):
+    connection = startConection()
     cursor = connection.cursor()
     jd = json.loads(request.body)
     try:
@@ -158,6 +180,7 @@ def post(self, request):
     return json.dump(data)
 
 def put(self, request, empno=0):
+    connection = startConection()
     cursor = connection.cursor()
     jd = json.loads(request.body)
     try:
@@ -176,6 +199,7 @@ def put(self, request, empno=0):
     return json.dump(data)
 
 def delete(self, request, empno=0):
+    connection = startConection()
     cursor = connection.cursor()
     employee = [empno]
     try:
@@ -194,6 +218,7 @@ def delete(self, request, empno=0):
     return json.dump(data)
 
 def get(self, request, deptno=0):
+    connection = startConection()
     cursor = connection.cursor()
     department = [deptno]
     try:
@@ -209,3 +234,5 @@ def get(self, request, deptno=0):
             'no_employees': result
         }
     return json.dump(data)
+
+startConection()
