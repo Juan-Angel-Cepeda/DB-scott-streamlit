@@ -2,6 +2,8 @@ import oracledb as Oracle
 import json
 import re
 
+##PARA CONECCCION
+
 def startConection():
     try:    
         conn = Oracle.connect(user="C##SCOTTS",
@@ -13,6 +15,7 @@ def startConection():
         print("Error",err)
         
         
+##PARA DEPARTAMENTOS
     
 def departmentConection(deptno=0):
     
@@ -22,10 +25,10 @@ def departmentConection(deptno=0):
     if deptno > 0:
         cursor.execute("SELECT * FROM dept WHERE deptno = {}".format(deptno))
         departments = cursor.fetchall()
-        json_data = []
+        resultados = []
         data = {}
         try:
-            json_data.append({"deptno" : departments[0][0], "dname" : departments[0][1], "loc" : departments[0][2]})
+            resultados.append({"deptno" : departments[0][0], "dname" : departments[0][1], "loc" : departments[0][2]})
         except Exception as err:
             data={
                 'message': 'Department not found.',
@@ -34,18 +37,20 @@ def departmentConection(deptno=0):
         else:
             data = {
                 'message': 'Success',
-                'departments': json_data
+                'departments': resultados
             }
-        return json_data
+        cursor.close()
+        return resultados
     
     else:
+        
         cursor.execute("SELECT * FROM dept")
         departments = cursor.fetchall()
-        json_data = []
+        resultado = []
         data = {}
         try:
             for dept in departments:
-                json_data.append({"Department Number" : dept[0], "Department Name" : dept[1], "Location" : dept[2]})
+                resultado.append({"Department Number" : dept[0], "Department Name" : dept[1], "Location" : dept[2]})
         except Exception as err:
             data = {
                 'message': 'Departments not found.',
@@ -54,10 +59,10 @@ def departmentConection(deptno=0):
         else:
             data = {
                 'message': 'Success',
-                'departments': json_data
+                'departments': resultado
             }
         cursor.close()
-        return json_data
+        return resultado
         
 
 def addDe(dept_number,dept_name,dept_location):
@@ -78,16 +83,18 @@ def addDe(dept_number,dept_name,dept_location):
             'message': 'Success'
         }
     finally:
+        connection.commit()
         cursor.close()
-        return 0
+        return "Departamento Agregado Correctamente"
     
 
-def put(self, request, deptno=0):
+def updateDepartment(dept_number,dept_name,dept_location):
+    
     connection = startConection()
     cursor = connection.cursor()
-    jd = json.loads(request.body)
+    
     try:
-        cursor.callproc('UPDATE_DEPTO', (deptno, jd['atribute'], jd['value']))
+        cursor.callproc('UPDATEDEPTO', (dept_number,dept_name,dept_location))
     except Exception as err:
         data = {
             'message': 'No department modified.',
@@ -98,15 +105,18 @@ def put(self, request, deptno=0):
             'message': 'Success'
         }
     finally:
+        connection.commit()
         cursor.close()
-    return json.dump(data)
+        return "Departamento Actualizado Correctamente"
+        
 
-def delete(self, request, deptno=0):
+def deleteDepartment(deptno):
     connection = startConection()
     cursor = connection.cursor()
-    department = [deptno]
+    
     try:
-        cursor.callproc('DELETE_DEPTO', department)
+        cursor.callproc('DELETEDEPTO', (deptno))
+    
     except Exception as err:
         data = {
             'message': 'No department deleted.',
@@ -117,19 +127,27 @@ def delete(self, request, deptno=0):
             'message': 'Success'
         }
     finally:
+        connection.commit
         cursor.close()
-    return json.dump(data)
+        mensaje = "Departamento Eliminado"
+        return mensaje
 
 
-def get(self, request, empno=0):
+##PARA EMPLEADOS
+
+def employeesConection(empno=0):
     connection = startConection()
     cursor = connection.cursor()
     if empno > 0:
         cursor.execute("SELECT * FROM emp WHERE empno = {}".format(empno))
         employees = cursor.fetchall()
-        json_data = []
+        empleados = []
+        data = {}
         try:
-            json_data.append({"empno" : employees[0][0], "ename" : employees[0][1], "job" : employees[0][2], "mgr" : employees[0][3], "hiredate" : employees[0][4], "sal" : employees[0][5], "comm" : employees[0][6], "deptno" : employees[0][7]})
+            empleados.append({"Numero de Empleado" : employees[0][0], "Nombre del Empleado" : employees[0][1], 
+                              "Puesto" : employees[0][2], "Manager" : employees[0][3],
+                              "Fecha de contratacion" : employees[0][4], "Salario" : employees[0][5],
+                              "Comision" : employees[0][6], "Numero de departamento" : employees[0][7]})
         except Exception as err:
             data = {
                 'message': 'Employee not found.',
@@ -138,16 +156,19 @@ def get(self, request, empno=0):
         else:
             data = {
                 'message': 'Success',
-                'employees': json_data
+                'employees': empleados
             }
-        return json.dump(data)
+        cursor.close()
+        return empleados
     else:
         cursor.execute("SELECT * FROM emp")
         employees = cursor.fetchall()
-        json_data = []
+        empleados = []
         try:
             for emp in employees:
-                json_data.append({"empno" : emp[0], "ename" : emp[1], "job" : emp[2], "mgr" : emp[3], "hiredate" : emp[4], "sal" : emp[5], "comm" : emp[6], "deptno" : emp[7]})
+                empleados.append({"Numero de empleado" : emp[0], "Nombre del empleado" : emp[1],
+                                  "Puesto" : emp[2], "Manager" : emp[3], "Fecha de contratacion" : emp[4],
+                                  "Salario" : emp[5], "Comision" : emp[6], "Departamento" : emp[7]})
         except Exception as err:
             data = {
                 'message': 'Departments not found.',
@@ -156,9 +177,11 @@ def get(self, request, empno=0):
         else:
             data = {
                 'message': 'Success',
-                'employees': json_data
+                'employees': empleados
             }
-        return json.dump(data)
+        cursor.close()
+        return empleados
+
 
 def post(self, request):
     connection = startConection()

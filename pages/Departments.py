@@ -12,23 +12,30 @@ with st.container():
         
         with st.container():
             
+            
+            
             deptNumber = st.number_input("Department Number",min_value=0)
             deptName = st.text_input("Department Name")
             deptLocation = st.text_input("Department Location")
             
-            botonSendInfoDepts = st.button("Send info")
-            botonConsultaBase = st.button("Consultar")
+            col1, col2 = st.columns(2)
+            with col1:
+                botonSendInfoDepts = st.button("Ejecutar")
+            with col2:
+                botonConsultaBase = st.button("Consultar")
             
             if selectBox == 'Add Department' and botonSendInfoDepts:
-                cnn.addDe(deptNumber,deptName,deptLocation)
+                message = cnn.addDe(deptNumber,deptName,deptLocation)
+                st.metric(label="status",value=message,delta="added")
             
             elif selectBox == 'Modify Department' and botonSendInfoDepts:
-                #ejecutar update department 
-                pass
+                message = cnn.updateDepartment(deptNumber,deptName,deptLocation)
+                st.metric(label="status",value=message,delta="Updated")
             
             elif selectBox == 'Delete Department' and botonSendInfoDepts:
-                #ejecutar delete department
-                pass
+                message = cnn.deleteDepartment(deptNumber)
+                st.metric(label="status",value=message,delta="Deleted")
+            
             elif selectBox == 'Search a Department' and botonSendInfoDepts:
                 
                 response = cnn.departmentConection(deptNumber)
