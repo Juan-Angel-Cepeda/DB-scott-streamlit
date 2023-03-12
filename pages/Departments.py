@@ -8,12 +8,11 @@ st.header("Welcome to departmens, Add, Delete or Updte Departments")
 
 with st.container():
                     
-        selectBox = st.selectbox("What do you want to do",['Add Department','Modify Department','Delete Department'])
+        selectBox = st.selectbox("What do you want to do",['Add Department','Modify Department','Delete Department','Search a Department'])
         
         with st.container():
             
             deptNumber = st.number_input("Department Number",min_value=0)
-            #st.json(conection.departmentConection(deptNumber))
             deptName = st.text_input("Department Name")
             deptLocation = st.text_input("Department Location")
             
@@ -30,6 +29,10 @@ with st.container():
             elif selectBox == 'Delete Department' and botonSendInfoDepts:
                 #ejecutar delete department
                 pass
+            elif selectBox == 'Search a Department' and botonSendInfoDepts:
+                
+                response = cnn.departmentConection(deptNumber)
+                st.table(response)
                 
             if botonConsultaBase:
                 
