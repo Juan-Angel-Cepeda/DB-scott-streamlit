@@ -28,7 +28,7 @@ def departmentConection(deptno=0):
         resultados = []
         data = {}
         try:
-            resultados.append({"deptno" : departments[0][0], "dname" : departments[0][1], "loc" : departments[0][2]})
+            resultados.append({"Department Number" : departments[0][0], "Department Name" : departments[0][1], "Locations" : departments[0][2]})
         except Exception as err:
             data={
                 'message': 'Department not found.',
@@ -93,7 +93,7 @@ def updateDepartment(dept_number,dept_name,dept_location):
     
     connection = startConection()
     cursor = connection.cursor()
-    
+    data = {}
     try:
         cursor.callproc('UPDATEDEPTO', (dept_number,dept_name,dept_location))
     except Exception as err:
@@ -114,6 +114,7 @@ def updateDepartment(dept_number,dept_name,dept_location):
 def deleteDepartment(deptno):
     connection = startConection()
     cursor = connection.cursor()
+    data = {}
     
     try:
         cursor.callproc('DELETEDEPTO',[deptno])
@@ -130,8 +131,8 @@ def deleteDepartment(deptno):
     finally:
         connection.commit()
         cursor.close()
-        mensaje = "Departamento Eliminado"
-        return mensaje
+        return "Departamento Eliminado"
+        
 
 
 ##PARA EMPLEADOS
@@ -140,6 +141,7 @@ def employeesConection(empno=0):
     connection = startConection()
     cursor = connection.cursor()
     if empno > 0:
+    
         cursor.execute("SELECT * FROM emp WHERE empno = {}".format(empno))
         employees = cursor.fetchall()
         empleados = []
@@ -192,7 +194,7 @@ def addEmployee(employeeNumber,employeeName,employeeJob,
     cursor = connection.cursor()
     data = {}
     try:
-        cursor.callproc('addEmployee',[employeeNumber,employeeName,employeeJob,employeeManager,
+        cursor.callproc('ADDEMPLOYEE',[employeeNumber,employeeName,employeeJob,employeeManager,
                                    employeeHireDate,employeeSalary,employeeCommision,
                                    employeeDepartmentNumber])
     except Exception as err:
@@ -200,18 +202,22 @@ def addEmployee(employeeNumber,employeeName,employeeJob,
             'message': 'No employee inserted.',
             'error': re.split(r'\n', '{}'.format(err))
         }
-        return data
+        
     finally:
-        cursor.close()
         connection.commit()
+        cursor.close()
         return "Empleado Insertado en la base"
 
-def put(self, request, empno=0):
+def updateEmployee(employeeNumber,employeeName,employeeJob,employeeManager,
+                                   employeeHireDate,employeeSalary,employeeCommision,
+                                   employeeDepartmentNumber):
     connection = startConection()
     cursor = connection.cursor()
-    jd = json.loads(request.body)
+    
     try:
-        cursor.callproc('UPDATE_EMP', (empno, jd['atribute'], jd['value']))
+        cursor.callproc('updateEmployee', (employeeNumber,employeeName,employeeJob,employeeManager,
+                                   employeeHireDate,employeeSalary,employeeCommision,
+                                   employeeDepartmentNumber))
     except Exception as err:
         data = {
             'message': 'No employee modified.',
@@ -222,15 +228,15 @@ def put(self, request, empno=0):
             'message': 'Success'
         }
     finally:
+        connection.commit()
         cursor.close()
-    return json.dump(data)
+        return "Empleado modificado"
 
-def delete(self, request, empno=0):
+def deleteEmployee(empno):
     connection = startConection()
     cursor = connection.cursor()
-    employee = [empno]
     try:
-        cursor.callproc('DELETE_EMP', employee)
+        cursor.callproc('DELETEEMP', (empno))
     except Exception as err:
         data = {
             'message': 'No employee deleted.',
@@ -241,15 +247,16 @@ def delete(self, request, empno=0):
             'message': 'Success'
         }
     finally:
+        connection.commit()
         cursor.close()
-    return json.dump(data)
+        return "Empleado Borrado"
 
-def get(self, request, deptno=0):
+def empInDept(deptno=0):
     connection = startConection()
     cursor = connection.cursor()
-    department = [deptno]
+    result = []
     try:
-        result = cursor.callfunc('NOEMP_DEPTO', int, department)
+        result = cursor.callfunc('NOEMP_DEPTO', str, deptno)
     except Exception as err:
         data = {
             'message': 'Department not found.',
@@ -260,5 +267,5 @@ def get(self, request, deptno=0):
             'message': 'Success',
             'no_employees': result
         }
-    return json.dump(data)
+    return result
 

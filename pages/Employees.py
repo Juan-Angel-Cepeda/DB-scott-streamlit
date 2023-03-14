@@ -36,9 +36,14 @@ with st.container():
         st.metric(label="status",value=message,delta="added")
         
     elif selectBoxEmployees == 'Modify Employee' and ejecutarButton:
-        pass
+        message = cnn.updateEmployee(employeeNumber,employeeName,employeeJob,employeeManager,employeeHireDate,
+                                  employeeSalary,employeeCommision,employeeDepartmentNumber)
+        st.metric(label="status",value=message,delta="Updated")
+    
     elif selectBoxEmployees == 'Delete Employee' and ejecutarButton:
-        pass
+        
+        message = cnn.deleteEmployee(employeeNumber)
+        st.metric(label="status",value=message,delta="Deleted")
     
     elif selectBoxEmployees == 'Search Employee' and ejecutarButton:
         response = cnn.employeesConection(employeeNumber)

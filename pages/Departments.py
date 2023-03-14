@@ -1,5 +1,4 @@
 import streamlit as st
-from PIL import Image
 import conection as cnn
 
 st.title("Departments")
@@ -47,6 +46,14 @@ with st.container():
                 consultarDepartamentos = cnn.departmentConection()
                 st.table(consultarDepartamentos)
 
+with st.container():
+    
+    st.subheader('Consulta a que departamento pertenece un empleado')
+    employeeNumber = st.text_input('Numero de empleado')
+    boton_empDept = st.button('Consultar',3)
+    if boton_empDept:
+        response = cnn.empInDept(employeeNumber)
+        st.table(response)
         
     
     
